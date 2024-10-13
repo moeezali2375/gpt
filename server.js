@@ -2,14 +2,25 @@ import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import OpenAI from "openai";
+import cors from "cors"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 const app = express();
-
+app.use(cors());
 app.use(express.json());
+
+app.post("/chat",async (req,res)=>{
+  const {msgs}=req.body;
+  const completion=await openai.chat.completions.create({
+  model:"gpt-4o-mini",
+  messages:msgs
+  })
+  const reply=completion.choices[0].message.content;
+  res.send({reply:reply});
+});
 
 app.post("/format", async (req, res) => {
   const { msg } = req.body;
@@ -37,6 +48,6 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-app.listen(3000, () => {
-  console.log("App is listening on Port 3000");
+app.listen(4000, () => {
+  console.log("App is listening on Port 4000");
 });
